@@ -13,7 +13,7 @@ var message = new gcm.Message();
 router.post('/avatar/upload', multer({ dest: './avatars/'}).single('avatar'), function(req, res, next) {
 	//console.log(req.file);
 	console.log("Uploading Avatar");
-	
+
 
 	fs.rename('./avatars/'+req.file.filename, './avatars/'+req.file.originalname, function(err) {
     	if ( err ) console.log(err);
@@ -40,13 +40,13 @@ router.post('/login/facebook', function(req, res, next) {
 	var avatar = req.body.avatar;
 	var mac = req.body.mac;
 	var token = req.body.token;
-	
+
 	MongoClient.connect(host + "/CityCare", function(err, db) {
 		if(err) { return console.dir(err); }
 
 		var collection = db.collection('usuarios');
 
-		var doc = {"name":name, 
+		var doc = {"name":name,
 					"id_prov":idAccount,
 					"email":email,
 					"birthday":birthday,
@@ -105,7 +105,7 @@ router.post('/editUserInfo', function(req, res) {
 				{ "_id": new mongo.ObjectID(id)},
 				[],
 				{$set: {"name":name, "lastname":lastName, "password":pss, "avatar":avatar}},
-				{ upsert:true, new:true }, 
+				{ upsert:true, new:true },
 			function(err,doc) {
 				if(!err){
 					console.log("***********changeUser OK***********");
@@ -127,7 +127,7 @@ router.post('/sendPush', function(req, res, next) {
 
 	MongoClient.connect(host + "/CityCare", function(err, db) {
 		if(err) { return console.dir(err); }
-		
+
 		var collection = db.collection('usuarios');
 		console.log("buscando por incidencias");
 
@@ -155,7 +155,7 @@ router.post('/edit/token', function(req, res, next) {
 	var id = req.body.id.toString();
 	var token = req.body.token;
 
-	
+
 	MongoClient.connect(host + "/CityCare", function(err, db) {
 		if(err) { return console.dir(err); }
 
@@ -165,7 +165,7 @@ router.post('/edit/token', function(req, res, next) {
 				{ "_id": new mongo.ObjectID(id)},
 				[],
 				{$set: {"token":token}},
-				{ new:true }, 
+				{ new:true },
 			function(err,doc) {
 				if(!err){
 					console.log("***********changeToken OK***********");
@@ -186,7 +186,7 @@ router.post('/login/email', function(req, res, next) {
 	console.log("connect to login");
 	var password = req.body.password;
 	var email = req.body.email;
-	
+
 	MongoClient.connect(host + "/CityCare", function(err, db) {
 		if(err) { return console.dir(err); }
 
@@ -217,13 +217,13 @@ router.post('/login/register', function(req, res, next) {
 	var mac = req.body.mac;
 	var type = req.body.accountType;
 	var token = req.body.token;
-	
+
 	MongoClient.connect(host + "/CityCare", function(err, db) {
 		if(err) { return console.dir(err); }
 
 		var collection = db.collection('usuarios');
 
-		var doc = {"name":name, 
+		var doc = {"name":name,
 					"email":email,
 					"lastname":lastname,
 					"password":password,
@@ -324,7 +324,7 @@ router.get('/count', function(req, res, next) {
         });
     });
 });
-						
+
 
 router.get('/deleteuser/:id', function(req, res, next) {
 	var id = req.params.id.toString();
@@ -359,7 +359,7 @@ router.get('/deleteuser/:id', function(req, res, next) {
 									}
 									db.close();
 								});*/
-					}				
+					}
 				});
 			}
 		});
@@ -464,15 +464,12 @@ router.get('/blackList/:mac', function(req, res, next) {
 });
 
 var _sendNotificationANDROID = 	function (data, device) {
-	
+	var apikey_ANDROID = require('./apikey.js').getAndroid();
 	if (typeof global.connections == "undefined") {
 			global.connections = [];
 		}
 
 		var connections = [];
-
-
-		var apikey_ANDROID = "AIzaSyAhit45aNJB6XMaHq_XC48bjj8xIVB8Bdc";
 		
 	// create sender
 	var sender = new gcm.Sender(apikey_ANDROID);
@@ -483,7 +480,7 @@ var _sendNotificationANDROID = 	function (data, device) {
 
 	// send message
 	sender.sendNoRetry(message, device, function (err, result) {
-			
+
 		var fail = err;
 		if (!err) {
 			if (result.success > 0) {

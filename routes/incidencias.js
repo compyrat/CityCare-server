@@ -57,18 +57,18 @@ router.post('/save', function(req,res,next){
 		var collection = db.collection('incidencias');
 
 		var doc = {"mac":mac,
-					"userId":userId,
-					"email":email,
-					"title":title,
-					"date":date,
-					"category":category,
-					"lat":lat,
-					"lng":lng,
-					"status":status,
-					"street":street,
-					"imageName":image,
-					"streetbyUser":streetbyUser
-					};
+    					"userId":userId,
+    					"email":email,
+    					"title":title,
+    					"date":date,
+    					"category":category,
+    					"lat":lat,
+    					"lng":lng,
+    					"status":status,
+    					"street":street,
+    					"imageName":image,
+    					"streetbyUser":streetbyUser
+    					};
 
 		console.log("Guardando incidencia del User: " + userId);
 
@@ -108,7 +108,7 @@ router.get('/incidences/:id', function(req, res, next) {
 			}
 
 			db.close();
-        });
+    });
 	});
 });
 
@@ -136,8 +136,9 @@ router.get('/getAll/:id/WithPag/:skip', function(req, res, next) {
 	                res.send("relatedItems");
 	                db.close();
 				}
-			});
-		}else{
+			}); //END find
+		} //END if (isDelete ==2)
+    else{
 			collection.find({"userId": id}).sort({"date":-1}).skip(parseInt(pag)).limit(5).toArray(function(err, relatedItems) {
 				if (!err){
 					console.log({"incidencias":relatedItems});
@@ -148,8 +149,8 @@ router.get('/getAll/:id/WithPag/:skip', function(req, res, next) {
 	                res.send("relatedItems");
 	                db.close();
 				}
-			});
-		}
+			}); //END find
+		} //END else
 	});
 });
 
@@ -164,7 +165,6 @@ router.get('/find/:id', function(req, res, next) {
 
 		console.log("buscando por incidencias");
 
-
 		collection.findOne({"_id": new mongo.ObjectID(id)}, function(err, result) {
 			if (!err){
 				console.log({"incidencia":result});
@@ -175,8 +175,8 @@ router.get('/find/:id', function(req, res, next) {
 			}
 
 			db.close();
-        });
-	});
+    });// END findOne
+	}); //END MongoClient.conect
 });
 
 router.get('/incidencesAll', function(req, res, next) {
@@ -200,7 +200,7 @@ router.get('/incidencesAll', function(req, res, next) {
 			}
 
 			db.close();
-        });
+    });
 	});
 });
 
@@ -255,8 +255,6 @@ router.get('/checkRead/:id', function(req, res, next) {
 		var collection = db.collection('incidencias');
 
 		console.log("buscando por incidencias");
-
-
 
 		collection.findAndModify(
 			    { "_id": new mongo.ObjectID(id)},
@@ -496,26 +494,18 @@ var _minePoint = function(id, db){
 }
 
 var _sendNotificationANDROID = 	function (data, device) {
-
+  var apikey_ANDROID = require('./apikey.js').getAndroid();
 	if (typeof global.connections == "undefined") {
 			global.connections = [];
 		}
-
 		var connections = [];
-
-
-		var apikey_ANDROID = "AIzaSyAhit45aNJB6XMaHq_XC48bjj8xIVB8Bdc";
-
 		// create sender
 		var sender = new gcm.Sender(apikey_ANDROID);
-
 		// create message
 		var message = new gcm.Message();
 		message.addDataWithObject(data);
-
 		// send message
 		sender.sendNoRetry(message, device, function (err, result) {
-
 			var fail = err;
 			if (!err) {
 				if (result.success > 0) {
