@@ -1,7 +1,6 @@
 var express = require('express');
 var router = express.Router();
 var multer  = require('multer');
-var upload = multer();
 var fs = require('fs');
 var mongo = require('mongodb');
 var MongoClient = require('mongodb').MongoClient;
@@ -18,8 +17,6 @@ router.post('/image/upload', multer({ dest: './uploads/'}).single('uploaded_file
 	console.log("conect to image/upload");
 	console.log(req.file);
 
-	
-
 	fs.rename('./uploads/'+req.file.filename, './uploads/'+req.file.originalname, function(err) {
     	if ( err ) console.log(err);
 	});
@@ -29,9 +26,14 @@ router.post('/image/upload', multer({ dest: './uploads/'}).single('uploaded_file
 
 router.get('/image/:image', function(req,res,next){
 	var img = req.params.image;
-	var img2 = fs.readFileSync('./uploads/' + img);
+  try {
+    var img2 = fs.readFileSync('./uploads/' + img);
     res.writeHead(200, {'Content-Type': 'image/jpg' });
     res.end(img2, 'binary');
+
+  }catch(err){
+    res.json({err:404, msg:img + " not found"})
+  }
 })
 
 router.post('/save', function(req,res,next){
@@ -56,7 +58,7 @@ router.post('/save', function(req,res,next){
 
 		var doc = {"mac":mac,
 					"userId":userId,
-					"email":email, 
+					"email":email,
 					"title":title,
 					"date":date,
 					"category":category,
@@ -80,14 +82,14 @@ router.post('/save', function(req,res,next){
 		  	}
 		  	db.close();
 		});
-		
+
 	});
 })
 
 router.get('/incidences/:id', function(req, res, next) {
 	console.log("conect to login");
 	var id = req.params.id;
-	
+
 	MongoClient.connect(host + "/CityCare", function(err, db) {
 		if(err) { return console.dir(err); }
 
@@ -105,7 +107,7 @@ router.get('/incidences/:id', function(req, res, next) {
                 res.send("relatedItems");
 			}
 
-			db.close();	
+			db.close();
         });
 	});
 });
@@ -115,7 +117,7 @@ router.get('/getAll/:id/WithPag/:skip', function(req, res, next) {
 	var id = req.params.id;
 	var pag = req.params.skip;
 	var isDelete = req.query.delete;
-	
+
 	MongoClient.connect(host + "/CityCare", function(err, db) {
 		if(err) { return console.dir(err); }
 
@@ -154,7 +156,7 @@ router.get('/getAll/:id/WithPag/:skip', function(req, res, next) {
 router.get('/find/:id', function(req, res, next) {
 	console.log("conect to login");
 	var id = req.params.id.toString();
-	
+
 	MongoClient.connect(host + "/CityCare", function(err, db) {
 		if(err) { return console.dir(err); }
 
@@ -172,14 +174,14 @@ router.get('/find/:id', function(req, res, next) {
                 res.send(err);
 			}
 
-			db.close();	
+			db.close();
         });
 	});
 });
 
 router.get('/incidencesAll', function(req, res, next) {
 	console.log("conect to incidencesAll");
-	
+
 	MongoClient.connect(host + "/CityCare", function(err, db) {
 		if(err) { return console.dir(err); }
 
@@ -197,7 +199,7 @@ router.get('/incidencesAll', function(req, res, next) {
                 res.send("error");
 			}
 
-			db.close();	
+			db.close();
         });
 	});
 });
@@ -209,7 +211,7 @@ router.post('/delete', function(req, res, next) {
 
 	MongoClient.connect(host + "/CityCare", function(err, db) {
 		if(err) { return console.dir(err); }
-		
+
 		var collection = db.collection('incidencias');
 		console.log("buscando por incidencias");
 
@@ -221,7 +223,7 @@ router.post('/delete', function(req, res, next) {
 
 		    		fs.unlink('./uploads/'+imageName, function(err) {
 				    	if ( err ) console.log(err);
-					});	    			
+					});
 		    	}
 		    	db.close();
 		    	res.end();
@@ -234,7 +236,7 @@ router.post('/delete', function(req, res, next) {
 		    		fs.unlink('./uploads/'+imageName, function(err) {
 				    	if ( err ) console.log(err);
 					});
-		    		
+
 		    	}
 		    	db.close();
 		    	res.end();
@@ -246,7 +248,7 @@ router.post('/delete', function(req, res, next) {
 router.get('/checkRead/:id', function(req, res, next) {
 	console.log("Marcando");
 	var id = req.params.id;
-	
+
 	MongoClient.connect(host + "/CityCare", function(err, db) {
 		if(err) { return console.dir(err); }
 
@@ -255,7 +257,7 @@ router.get('/checkRead/:id', function(req, res, next) {
 		console.log("buscando por incidencias");
 
 
-		
+
 		collection.findAndModify(
 			    { "_id": new mongo.ObjectID(id)},
 			    [],
@@ -278,7 +280,7 @@ router.get('/checkRead/:id', function(req, res, next) {
 router.get('/count/:id', function(req, res, next) {
 	console.log("Contando");
 	var id = req.params.id;
-	
+
 	MongoClient.connect(host + "/CityCare", function(err, db) {
 		if(err) { return console.dir(err); }
 
@@ -289,7 +291,7 @@ router.get('/count/:id', function(req, res, next) {
 			console.log(count);
 			db.close();
 			res.send(count.toString());
-        	
+
         });
     });
 });
@@ -297,7 +299,7 @@ router.get('/count/:id', function(req, res, next) {
 router.get('/countSolved/:id', function(req, res, next) {
 	console.log("Contando");
 	var id = req.params.id;
-	
+
 	MongoClient.connect(host + "/CityCare", function(err, db) {
 		if(err) { return console.dir(err); }
 
@@ -308,7 +310,7 @@ router.get('/countSolved/:id', function(req, res, next) {
 			console.log(count);
 			db.close();
 			res.send(count.toString());
-        	
+
         });
     });
 });
@@ -316,7 +318,7 @@ router.get('/countSolved/:id', function(req, res, next) {
 router.get('/countTest/:id', function(req, res, next) {
 	console.log("Contando");
 	var id = req.params.id;
-	
+
 	MongoClient.connect(host + "/CityCare", function(err, db) {
 		if(err) { return console.dir(err); }
 
@@ -406,7 +408,7 @@ router.get('/setStatus/:id/:status', function(req, res, next) {
 				"status":status,
 			}
 		}
-		
+
 		collection.findAndModify(
 			    { "_id": new mongo.ObjectID(id)},
 			    [],
@@ -494,7 +496,7 @@ var _minePoint = function(id, db){
 }
 
 var _sendNotificationANDROID = 	function (data, device) {
-	
+
 	if (typeof global.connections == "undefined") {
 			global.connections = [];
 		}
@@ -503,7 +505,7 @@ var _sendNotificationANDROID = 	function (data, device) {
 
 
 		var apikey_ANDROID = "AIzaSyAhit45aNJB6XMaHq_XC48bjj8xIVB8Bdc";
-		
+
 		// create sender
 		var sender = new gcm.Sender(apikey_ANDROID);
 
@@ -513,7 +515,7 @@ var _sendNotificationANDROID = 	function (data, device) {
 
 		// send message
 		sender.sendNoRetry(message, device, function (err, result) {
-				
+
 			var fail = err;
 			if (!err) {
 				if (result.success > 0) {

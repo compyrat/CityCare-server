@@ -40,6 +40,10 @@ if (typeof global.connections == "undefined") {
 var connections = [];
 
 
+function LIBPUSH () {
+
+}
+
 //
 // SEND notification
 //	data: JSON to send
@@ -55,6 +59,7 @@ LIBPUSH.sendNotification = function (data, users, callback) {
 		if (callback) callback(undefined, undefined)
 		return;
 	}
+
 	// for each user
 	console.log("* SEND ANDROID NOTIFIATION device " + J(user.device));
 
@@ -63,13 +68,17 @@ LIBPUSH.sendNotification = function (data, users, callback) {
 }
 
 var _sendNotificationANDROID = 	function (data, device) {
+
 	// create sender
 	var sender = new gcm.Sender(apikey_ANDROID);
+
 	// create message
 	var message = new gcm.Message();
 	message.addDataWithObject(data);
+
 	// send message
 	sender.sendNoRetry(message, device, function (err, result) {
+
 		var fail = err;
 		if (!err) {
 			if (result.success > 0) {
